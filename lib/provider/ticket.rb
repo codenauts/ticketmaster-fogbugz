@@ -83,6 +83,13 @@ module TicketMaster::Provider
         nil
         warn "Fogbugz API doesn't support comments"
       end
+      
+      def self.create(*options)
+        issue = API.new(options)
+        ticket = self.new(issue)
+        issue.save
+        ticket
+      end
 
       def self.find(project_id, options)
         if options.first.is_a? Array
