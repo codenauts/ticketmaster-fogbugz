@@ -85,10 +85,10 @@ module TicketMaster::Provider
       end
       
       def self.create(*options)
-        issue = API.new(options)
-        ticket = self.new(issue)
-        issue.save
-        ticket
+        attributes = options.first
+        issue = TicketMaster::Provider::Fogbugz.api.command(:new, :ixProject => attributes[:project_id], :sTitle => attributes[:title], :sEvent => attributes[:description])
+        return nil if issue["case"].nil? and issue["case"]["ixBug"].nil?
+        return find_by_id(attributes[:project_id].to_i, issue["case"]["ixBug"].to_i)
       end
 
       def self.find(project_id, options)
