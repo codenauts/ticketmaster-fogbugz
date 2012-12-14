@@ -87,7 +87,13 @@ module TicketMaster::Provider
       
       def self.create(*options)
         attributes = options.first
-        issue = TicketMaster::Provider::Fogbugz.api.command(:new, :ixProject => attributes[:project_id], :sTitle => attributes[:title], :sEvent => attributes[:description], :sCategory => attributes[:category])
+        issue = TicketMaster::Provider::Fogbugz.api.command(:new, {
+          :ixProject => attributes[:project_id], 
+          :sTitle => attributes[:title], 
+          :sEvent => attributes[:description], 
+          :sCategory => attributes[:category],
+          :sArea => attributes[:area]
+        })
         return nil if issue["case"].nil? and issue["case"]["ixBug"].nil?
         return self.new(issue["case"])
       end
