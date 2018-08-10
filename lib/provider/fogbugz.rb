@@ -20,15 +20,20 @@ module TicketMaster::Provider
       @authentication ||= TicketMaster::Authenticator.new(auth)
       auth = @authentication
 
-      unless auth.email? && auth.password? && auth.uri?
-        raise TicketMaster::Exception.new 'Please provide email, password and uri'
+      unless auth.uri? && auth.password?
+        raise TicketMaster::Exception.new "Please provide the uri and email and password, or an API token"
       end
 
       begin
-        @fogbugz = ::Fogbugz::Interface.new(:email => auth.email, 
-          :uri => auth.uri, :password => auth.password)
-        TicketMaster::Provider::Fogbugz.api = @fogbugz
-        @fogbugz.authenticate
+        if auth.email.present?
+          @fogbugz = ::Fogbugz::Interface.new(:email => auth.email, 
+            :uri => auth.uri, :password => auth.password)
+          TicketMaster::Provider::Fogbugz.api = @fogbugz
+          @fogbugz.authenticate
+        else
+          @fogbugz = ::Fogbugz::Interface.new(:uri => auth.uri, :token => auth.password)
+          TicketMaster::Provider::Fogbugz.api = @fogbugz
+        end
       rescue Exception => ex
         warn "There was a problem authenticaticating #{ex.message}"
       end
